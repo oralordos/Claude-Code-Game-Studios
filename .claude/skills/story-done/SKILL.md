@@ -269,6 +269,20 @@ If yes, edit the story file:
    - Update the top-level `updated` field
    - This is a silent update — no extra approval needed (already approved in step above)
 
+### Session State Update
+
+After updating the story file, silently append to
+`production/session-state/active.md`:
+
+    ## Session Extract — /story-done [date]
+    - Verdict: [COMPLETE / COMPLETE WITH NOTES / BLOCKED]
+    - Story: [story file path] — [story title]
+    - Tech debt logged: [N items, or "None"]
+    - Next recommended: [next ready story title and path, or "None identified"]
+
+If `active.md` does not exist, create it with this block as the initial content.
+Confirm in conversation: "Session state updated."
+
 ---
 
 ## Phase 8: Surface the Next Story

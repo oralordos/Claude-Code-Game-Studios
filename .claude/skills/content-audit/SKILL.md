@@ -22,10 +22,20 @@ Parse the argument:
 1. **Read `design/gdd/systems-index.md`** for the full list of systems, their
    categories, and MVP/priority tier.
 
-2. **Read all GDD files** in `design/gdd/` (or the single system GDD if a
-   system name was given).
+2. **L0 pre-scan**: Before full-reading any GDDs, Grep all GDD files for
+   `## Summary` sections plus common content-count keywords:
+   ```
+   Grep pattern="(## Summary|N enemies|N levels|N items|N abilities|enemy types|item types)" glob="design/gdd/*.md" output_mode="files_with_matches"
+   ```
+   For a single-system audit: skip this step and go straight to full-read.
+   For a full audit: full-read only the GDDs that matched content-count keywords.
+   GDDs with no content-count language (pure mechanics GDDs) are noted as
+   "No auditable content counts" without a full read.
 
-3. **For each GDD, extract explicit content counts or lists.** Look for patterns
+3. **Full-read in-scope GDD files** (or the single system GDD if a system
+   name was given).
+
+4. **For each GDD, extract explicit content counts or lists.** Look for patterns
    like:
    - "N enemies" / "enemy types:" / list of named enemies
    - "N levels" / "N areas" / "N maps" / "N stages"

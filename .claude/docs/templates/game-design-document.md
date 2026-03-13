@@ -3,7 +3,16 @@
 > **Status**: Draft | In Review | Approved | Implemented
 > **Author**: [Agent or person]
 > **Last Updated**: [Date]
+> **Last Verified**: [Date — when this doc was last confirmed accurate against current design]
 > **Implements Pillar**: [Which game pillar this supports]
+
+## Summary
+
+[2–3 sentences: what this system is, what it does for the player, and why it
+exists in this game. Written for tiered context loading — a skill scanning
+20 GDDs uses this section to decide whether to read further. No jargon.]
+
+> **Quick reference** — Layer: `[Foundation | Core | Feature | Presentation]` · Priority: `[MVP | Vertical Slice | Alpha | Full Vision]` · Key deps: `[System names or "None"]`
 
 ## Overview
 
@@ -173,6 +182,24 @@ These are subjective targets stated precisely enough to get consistent verdicts.
 
 | Information | Display Location | Update Frequency | Condition |
 |-------------|-----------------|-----------------|-----------|
+
+## Cross-References
+
+[Declare every explicit dependency on another GDD's specific mechanic, value, or
+rule. This table is machine-checked by `/review-all-gdds` Phase 2c — it replaces
+implicit prose references with verifiable declarations. If you reference another
+system's behaviour anywhere in this document, it must appear here.]
+
+| This Document References | Target GDD | Specific Element Referenced | Nature |
+|--------------------------|-----------|----------------------------|--------|
+| [e.g., "combo multiplier feeds score"] | `design/gdd/score.md` | `combo_multiplier` output value | Data dependency |
+| [e.g., "death triggers respawn"] | `design/gdd/respawn.md` | Death state transition | State trigger |
+| [e.g., "stamina gates dodge"] | `design/gdd/stamina.md` | Stamina depletion rule | Rule dependency |
+
+> **Note on "Nature"**: use one of — `Data dependency` (we consume their output),
+> `State trigger` (their state change triggers our behaviour), `Rule dependency`
+> (our rule assumes their rule is also true), `Ownership handoff` (we hand off
+> ownership of a value to them).
 
 ## Acceptance Criteria
 

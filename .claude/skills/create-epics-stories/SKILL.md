@@ -40,11 +40,28 @@ If no argument, use `AskUserQuestion`:
 
 ## 2. Load All Inputs
 
-Read everything before generating any output:
+### Step 2a — L0: Summary Scan
+
+Before full-reading any documents, Grep all GDDs for their `## Summary` sections:
+
+```
+Grep pattern="## Summary" glob="design/gdd/*.md" output_mode="content" -A 5
+```
+
+For `all` mode: display a manifest of all Approved/Designed GDDs with their
+summaries so the user can confirm scope before the full load begins.
+
+For `layer:` or `[system-name]` modes: filter to only the target GDDs based
+on the Summary quick-reference line (Layer + Priority). Skip full-reading
+GDDs outside the requested scope entirely.
+
+### Step 2b — L1/L2: Full Document Load
+
+Read everything for the in-scope systems before generating any output:
 
 ### Design Documents
 - `design/gdd/systems-index.md` — authoritative system list, layers, status
-- All GDDs in `design/gdd/` — read every file with "Approved" or "Designed" status
+- In-scope GDDs in `design/gdd/` — read every file with "Approved" or "Designed" status
 - For each GDD, extract:
   - System name and layer (from systems-index.md)
   - All acceptance criteria (these become story acceptance criteria)

@@ -26,14 +26,34 @@ and Pre-Production.
 
 ## Phase 1: Load Everything
 
-Read all inputs before analysis:
+### Phase 1a — L0: Summary Scan (fast, low tokens)
+
+Before reading any full document, use Grep to extract `## Summary` sections
+from all GDDs and ADRs:
+
+```
+Grep pattern="## Summary" glob="design/gdd/*.md" output_mode="content" -A 4
+Grep pattern="## Summary" glob="docs/architecture/adr-*.md" output_mode="content" -A 3
+```
+
+For `single-gdd [path]` mode: use the target GDD's summary to identify which
+ADRs reference the same system (Grep ADRs for the system name), then full-read
+only those ADRs. Skip full-reading unrelated GDDs entirely.
+
+For `engine` mode: only full-read ADRs — GDDs are not needed for engine checks.
+
+For `coverage` or `full` mode: proceed to full-read everything below.
+
+### Phase 1b — L1/L2: Full Document Load
+
+Read all inputs appropriate to the mode:
 
 ### Design Documents
-- All GDDs in `design/gdd/` — read every file completely
+- All in-scope GDDs in `design/gdd/` — read every file completely
 - `design/gdd/systems-index.md` — the authoritative list of systems
 
 ### Architecture Documents
-- All ADRs in `docs/architecture/` — read every file completely
+- All in-scope ADRs in `docs/architecture/` — read every file completely
 - `docs/architecture/architecture.md` if it exists
 
 ### Engine Reference
@@ -388,6 +408,22 @@ If yes:
 
 This ensures all future story files can reference stable TR-IDs that persist
 across every subsequent architecture review.
+
+### Session State Update
+
+After writing all approved files, silently append to
+`production/session-state/active.md`:
+
+    ## Session Extract — /architecture-review [date]
+    - Verdict: [PASS / CONCERNS / FAIL]
+    - Requirements: [N] total — [X] covered, [Y] partial, [Z] gaps
+    - New TR-IDs registered: [N, or "None"]
+    - GDD revision flags: [comma-separated GDD names, or "None"]
+    - Top ADR gaps: [top 3 gap titles from the report, or "None"]
+    - Report: docs/architecture/architecture-review-[date].md
+
+If `active.md` does not exist, create it with this block as the initial content.
+Confirm in conversation: "Session state updated."
 
 The traceability index format:
 

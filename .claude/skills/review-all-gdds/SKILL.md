@@ -38,17 +38,37 @@ completeness. This skill reviews the *relationships* between all GDDs.
 
 ## Phase 1: Load Everything
 
-Read all design documents before any analysis:
+### Phase 1a — L0: Summary Scan (fast, low tokens)
+
+Before reading any full document, use Grep to extract `## Summary` sections
+from all GDD files:
+
+```
+Grep pattern="## Summary" glob="design/gdd/*.md" output_mode="content" -A 5
+```
+
+Display a manifest to the user:
+```
+Found [N] GDDs. Summaries:
+  • combat.md — [summary text]
+  • inventory.md — [summary text]
+  ...
+```
+
+For `since-last-review` mode: run `git log --name-only` to identify GDDs
+modified since the last review report file was written. Show the user which
+GDDs are in scope based on summaries before doing any full reads. Only
+proceed to L1 for those GDDs plus any GDDs listed in their "Key deps".
+
+### Phase 1b — L1/L2: Full Document Load
+
+Full-read the in-scope documents:
 
 1. `design/gdd/game-concept.md` — game vision, core loop, MVP definition
 2. `design/gdd/game-pillars.md` if it exists — design pillars and anti-pillars
 3. `design/gdd/systems-index.md` — authoritative system list, layers, dependencies, status
-4. **Every system GDD in `design/gdd/`** — read completely (skip game-concept.md
-   and systems-index.md — those are read above)
-
-For `since-last-review` mode: run `git log --name-only` to identify GDDs
-modified since the last review report file was written. Only load those GDDs
-plus any GDDs they depend on.
+4. **Every in-scope system GDD in `design/gdd/`** — read completely (skip
+   game-concept.md and systems-index.md — those are read above)
 
 Report: "Loaded [N] system GDDs covering [M] systems. Pillars: [list]. Anti-pillars: [list]."
 
@@ -509,6 +529,22 @@ Ask: "Should I update the systems index to mark these GDDs as needing revision?"
   (Do NOT append parentheticals to the status value — other skills match "Needs Revision"
   as an exact string and parentheticals break that match.)
   Ask approval before writing.
+
+### Session State Update
+
+After writing the report (and updating systems index if approved), silently
+append to `production/session-state/active.md`:
+
+    ## Session Extract — /review-all-gdds [date]
+    - Verdict: [PASS / CONCERNS / FAIL]
+    - GDDs reviewed: [N]
+    - Flagged for revision: [comma-separated list, or "None"]
+    - Blocking issues: [N — brief one-line descriptions, or "None"]
+    - Recommended next: [the Phase 7 handoff action, condensed to one line]
+    - Report: design/gdd/gdd-cross-review-[date].md
+
+If `active.md` does not exist, create it with this block as the initial content.
+Confirm in conversation: "Session state updated."
 
 ---
 

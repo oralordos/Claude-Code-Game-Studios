@@ -6,11 +6,24 @@
 
 ## Date
 
-[YYYY-MM-DD]
+[YYYY-MM-DD — when this ADR was written]
+
+## Last Verified
+
+[YYYY-MM-DD — when this ADR was last confirmed accurate against the current
+engine version and design. Update this date when you re-read and confirm it
+is still correct, even if nothing changed.]
 
 ## Decision Makers
 
 [Who was involved in this decision]
+
+## Summary
+
+[2 sentences: what problem this ADR solves, and what was decided. Written for
+tiered context loading — a skill scanning 20 ADRs uses this to decide whether
+to read the full decision. Be specific: name the system, the problem, and the
+chosen approach.]
 
 ## Engine Compatibility
 
