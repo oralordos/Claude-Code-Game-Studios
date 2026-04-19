@@ -33,7 +33,8 @@ A test framework installed at sprint four costs 3 sprints.
    - Glob `tests/unit/` and `tests/integration/` — do subdirectories exist?
    - Glob `.github/workflows/` — does a CI workflow file exist?
    - Glob `tests/gdunit4_runner.gd` (Godot) or `tests/EditMode/` (Unity) or
-     `Source/Tests/` (Unreal) for engine-specific artifacts.
+     `Source/Tests/` (Unreal) or `tests/CMakeLists.txt` / `CMakePresets.json` (SDL3/C++)
+     for engine-specific artifacts.
 
 3. **Report findings**:
    - "Engine: [engine]. Test directory: [found / not found]. CI workflow: [found / not found]."
@@ -87,7 +88,7 @@ After approval, create the following files:
 # Test Infrastructure
 
 **Engine**: [engine name + version]
-**Test Framework**: [GdUnit4 | Unity Test Framework | UE Automation]
+**Test Framework**: [GdUnit4 | Unity Test Framework | UE Automation | doctest (SDL3/C++) | Catch2 (SDL3/C++)]
 **CI**: `.github/workflows/tests.yml`
 **Setup date**: [date]
 
@@ -200,6 +201,52 @@ Or headlessly: UnrealEditor -nullrhi -ExecCmds="Automation RunTests MyGame.; Qui
 Test class naming: F[SystemName]Test
 Test category naming: "MyGame.[System].[Feature]"
 ```
+
+#### SDL3 / C++ (`Engine: SDL3`)
+
+Create `tests/CMakeLists.txt`:
+```cmake
+include(FetchContent)
+FetchContent_Declare(doctest
+    GIT_REPOSITORY https://github.com/doctest/doctest.git
+    GIT_TAG        v2.4.11
+    GIT_SHALLOW    TRUE)
+FetchContent_MakeAvailable(doctest)
+
+add_executable(tests
+    # Unit tests
+    unit/example_test.cpp
+)
+target_link_libraries(tests PRIVATE game_core doctest::doctest)
+target_compile_features(tests PRIVATE cxx_std_20)
+
+include(doctest)
+doctest_discover_tests(tests)
+```
+
+Create `tests/unit/example_test.cpp`:
+```cpp
+#include <doctest/doctest.h>
+
+TEST_CASE("example: arithmetic works") {
+    CHECK(1 + 1 == 2);
+}
+```
+
+Note in the README: **Enabling Tests (SDL3/C++)**
+```
+Tests are a subproject under tests/. They are built when BUILD_TESTING=ON:
+
+  cmake -B build -DBUILD_TESTING=ON
+  cmake --build build
+  ctest --test-dir build --output-on-failure
+
+See docs/engine-reference/sdl3/ for SDL3-specific concerns and
+.claude/agents/sdl3-build-specialist.md for deeper CMake patterns.
+```
+
+Default framework is **doctest** (single-header, compiles fast). Substitute
+Catch2 if the team prefers it — same CTest discovery pattern.
 
 ---
 
@@ -339,6 +386,73 @@ jobs:
 
 Note: UE CI requires a self-hosted runner with Unreal Editor installed.
 Set the `UE_EDITOR_PATH` environment variable on the runner.
+
+### SDL3 / C++
+
+Create `.github/workflows/tests.yml`:
+
+```yaml
+name: Automated Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        build_type: [Debug, Release]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          lfs: true
+
+      - name: Install Linux deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build pkg-config \
+            libwayland-dev libxkbcommon-dev libegl1-mesa-dev \
+            libgl1-mesa-dev libx11-dev libxcursor-dev libxrandr-dev \
+            libxi-dev libasound2-dev libpulse-dev
+
+      - name: Install Ninja (Windows/macOS)
+        if: runner.os != 'Linux'
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Configure
+        run: cmake -B build -G Ninja
+             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+             -DBUILD_TESTING=ON
+
+      - name: Build
+        run: cmake --build build --config ${{ matrix.build_type }}
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+             -C ${{ matrix.build_type }}
+
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs-${{ matrix.os }}-${{ matrix.build_type }}
+          path: build/Testing/
+```
+
+Note: SDL3 CI needs OS-specific dev packages for window-system access
+(Wayland, X11, pulse/alsa). The Linux step above covers Ubuntu/Debian;
+adapt for other distros. Consider delegating platform-specific build
+concerns to `sdl3-build-specialist`.
 
 ---
 

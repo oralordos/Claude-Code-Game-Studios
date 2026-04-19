@@ -60,6 +60,7 @@ domain lead) should delegate to specialists.
 | `unreal-specialist` | Unreal Engine 5 | Sonnet | Blueprint vs C++, GAS overview, UE subsystems, Unreal optimization |
 | `unity-specialist` | Unity | Sonnet | MonoBehaviour vs DOTS, Addressables, URP/HDRP, Unity optimization |
 | `godot-specialist` | Godot 4 | Sonnet | GDScript patterns, node/scene architecture, signals, Godot optimization |
+| `sdl3-specialist` | SDL3 (C++ framework) | Sonnet | SDL_Renderer vs SDL_gpu, callbacks vs main loop, satellite library choice, SDL3 architecture — framework-level decisions SDL3 projects own themselves |
 
 ### Unreal Engine Sub-Specialists
 
@@ -86,3 +87,12 @@ domain lead) should delegate to specialists.
 | `godot-gdscript-specialist` | GDScript | Sonnet | Static typing, design patterns, signals, coroutines, GDScript performance |
 | `godot-shader-specialist` | Shaders/Rendering | Sonnet | Godot shading language, visual shaders, particles, post-processing |
 | `godot-gdextension-specialist` | GDExtension | Sonnet | C++/Rust bindings, native performance, custom nodes, build systems |
+
+### SDL3 Sub-Specialists
+
+| Agent | Subsystem | Model | When to Use |
+| ---- | ---- | ---- | ---- |
+| `sdl3-cpp-specialist` | C++ code quality | Sonnet | C++20 idioms, RAII wrappers over SDL types, ownership, STL, header hygiene |
+| `sdl3-gpu-specialist` | SDL_gpu & shaders | Sonnet | SDL_gpu pipeline, HLSL + SDL_shadercross build, command buffers, GPU performance |
+| `sdl3-audio-specialist` | Audio | Sonnet | SDL_AudioStream, audio thread safety, mixing strategy, middleware (SDL_mixer / miniaudio / FMOD / Wwise) integration |
+| `sdl3-build-specialist` | Build system | Sonnet | CMake, FetchContent vs submodules vs vcpkg, shader build pipeline, CI, packaging |

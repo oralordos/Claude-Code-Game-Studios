@@ -13,8 +13,9 @@ visual quality, performance, and cross-platform compatibility.
   - `spatial_env_water.gdshader` (Godot)
   - `SG_Env_Water` (Unity Shader Graph)
   - `M_Env_Water` (Unreal Material)
+  - `env_water.vertex.hlsl` / `env_water.fragment.hlsl` (SDL3/SDL_gpu via SDL_shadercross)
 - Use descriptive names that indicate the material purpose
-- Prefix with shader type: `spatial_`, `canvas_`, `particles_`, `post_`
+- Prefix with shader type: `spatial_`, `canvas_`, `particles_`, `post_` (Godot) or `[category]_[purpose]` + stage suffix (SDL3)
 
 ## Code Quality
 - All uniforms/parameters must have descriptive names and appropriate hints

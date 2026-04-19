@@ -150,6 +150,7 @@ Before starting the soak:
   - **Godot**: Debugger → Monitors tab → Memory section visible
   - **Unity**: Memory Profiler window open
   - **Unreal**: `stat memory` ready in console
+  - **SDL3 / C++**: run a Release-with-symbols build under a system memory profiler (macOS Instruments → Allocations, Windows VMMap/PerfView, Linux Valgrind/Massif or heaptrack). For CI regression, run smoke-run under AddressSanitizer + LeakSanitizer.
 - [ ] Soak target confirmed: [session design intent from game concept]
 - [ ] Prior known issues to watch for: [from most recent playtest / qa-plan]
 

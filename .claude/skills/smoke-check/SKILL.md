@@ -105,6 +105,21 @@ ls -t Saved/Logs/ 2>/dev/null | grep -i "test\|automation" | head -5
 If no matching log found: "UE automation tests must be run via the Session
 Frontend or CI pipeline. Please confirm test status manually."
 
+**SDL3 / C++:**
+```bash
+cmake --build build --config Debug 2>&1 && \
+ctest --test-dir build --output-on-failure -C Debug 2>&1
+```
+If the `build/` directory does not exist, the project must be configured first:
+```bash
+cmake -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON
+```
+If CMake / ctest exit non-zero, report the PASS/FAIL counts from
+`ctest --output-on-failure`. If the test executable is missing, the project
+has not added tests yet — note: "No tests registered in CTest. Run
+`/test-setup` to scaffold the SDL3 test framework, or add tests to
+`tests/CMakeLists.txt`."
+
 **Unknown engine / not configured:**
 "Engine not configured in `.claude/docs/technical-preferences.md`. Run
 `/setup-engine` to specify the engine, then re-run `/smoke-check`."

@@ -55,6 +55,11 @@ by default.
 For Unreal projects: automation logs go to `Saved/Logs/`. Grep for
 `Result: Success` and `Result: Fail` patterns.
 
+For SDL3/C++ projects: CTest logs live in `build/Testing/Temporary/`
+(`LastTest.log`, `LastTestsFailed.log`). For JUnit XML, configure ctest with
+`--output-junit results.xml` or run doctest directly with
+`--reporters=junit --out=results.xml`.
+
 ### Option B — Local log files
 
 If a path argument is provided, read that file directly.
@@ -77,7 +82,7 @@ Stop and ask the user which option to pursue.
 
 For each CI log or result file found, parse:
 
-**JUnit XML format** (GdUnit4 / Unity):
+**JUnit XML format** (GdUnit4 / Unity / doctest):
 - Grep for `<testcase name=` to get test names
 - Grep for `<failure` or `<error` to identify failures
 - Parse `classname` and `name` attributes for full test identifiers

@@ -241,6 +241,94 @@ public static class GameFactory
 
 ---
 
+### SDL3 / C++ (doctest)
+
+**Base helper** (`tests/helpers/game_assertions.hpp`):
+
+```cpp
+#pragma once
+
+#include <doctest/doctest.h>
+#include <cmath>
+#include <string_view>
+
+namespace game::test {
+
+// Assert a numeric value is within an inclusive range [min, max].
+// Use for any formula output with bounds defined in a GDD Formulas section.
+template <typename T>
+inline void AssertInRange(T value, T min_val, T max_val,
+                          std::string_view label = "value") {
+    CHECK_MESSAGE(value >= min_val && value <= max_val,
+                  "%s (%g) outside expected range [%g, %g]",
+                  std::string(label).c_str(),
+                  static_cast<double>(value),
+                  static_cast<double>(min_val),
+                  static_cast<double>(max_val));
+}
+
+// Assert two floats are approximately equal within an epsilon.
+inline void AssertApprox(float actual, float expected, float epsilon = 1e-5f,
+                         std::string_view label = "value") {
+    CHECK_MESSAGE(std::abs(actual - expected) < epsilon,
+                  "%s expected %g, got %g (epsilon %g)",
+                  std::string(label).c_str(),
+                  static_cast<double>(expected),
+                  static_cast<double>(actual),
+                  static_cast<double>(epsilon));
+}
+
+}  // namespace game::test
+```
+
+**Factory helper** (`tests/helpers/game_factory.hpp`):
+
+```cpp
+#pragma once
+
+namespace game::test {
+
+// Lightweight POD for combat tests — no full actor tree required.
+struct TestAttacker {
+    float attack = 10.0f;
+    float crit_chance = 0.0f;
+};
+
+struct TestTarget {
+    float defense = 0.0f;
+    float health = 100.0f;
+    float max_health = 100.0f;
+};
+
+inline TestAttacker MakeAttacker(float attack = 10.0f,
+                                 float crit_chance = 0.0f) {
+    return TestAttacker{attack, crit_chance};
+}
+
+inline TestTarget MakeTarget(float defense = 0.0f, float health = 100.0f) {
+    return TestTarget{defense, health, health};
+}
+
+}  // namespace game::test
+```
+
+Usage in a test file:
+
+```cpp
+#include <doctest/doctest.h>
+#include "helpers/game_assertions.hpp"
+#include "helpers/game_factory.hpp"
+
+TEST_CASE("combat: base damage respects attacker stat") {
+    auto attacker = game::test::MakeAttacker(20.0f);
+    auto target = game::test::MakeTarget(5.0f);
+    float damage = attacker.attack - target.defense;
+    game::test::AssertInRange(damage, 0.0f, 999.0f, "damage");
+}
+```
+
+---
+
 ### Unreal Engine (C++)
 
 **Base helper** (`tests/helpers/GameTestHelpers.h`):
@@ -372,7 +460,10 @@ After writing: Verdict: **COMPLETE** — helper files created.
 "Helper files created. To use them in a test:
 - Godot: `class_name` is auto-imported — no explicit import needed
 - Unity: Add `using` directive or reference the test assembly
-- Unreal: `#include \"tests/helpers/GameTestHelpers.h\"`"
+- Unreal: `#include \"tests/helpers/GameTestHelpers.h\"`
+- SDL3 / C++: `#include \"helpers/game_assertions.hpp\"` and
+  `#include \"helpers/game_factory.hpp\"` — ensure `tests/` is in the target's
+  include path (handled by `tests/CMakeLists.txt`)"
 
 ---
 

@@ -36,9 +36,11 @@ If no engine is specified, run an interactive engine selection process:
 
 **Question 1 — Prior experience** (ask this first, always, via `AskUserQuestion`):
 - Prompt: "Have you worked in any of these engines before?"
-- Options: `Godot` / `Unity` / `Unreal Engine 5` / `Multiple — I'll explain` / `None of them`
+- Options: `Godot` / `Unity` / `Unreal Engine 5` / `SDL3 / C++` / `Multiple — I'll explain` / `None of them`
 - If they pick a specific engine → recommend that engine. Prior experience outweighs all other factors. Confirm with them and skip the matrix.
 - If "None" or "Multiple" → continue to the questions below.
+
+> **Note on SDL3**: SDL3 is a cross-platform C/C++ framework, not a full engine. Teams on SDL3 write more foundation code (no scene graph, no editor, no built-in physics or UI) in exchange for full architectural control. Recommend SDL3 only when the user has C++ experience and wants that control, or when they explicitly want to build the engine themselves. Do not recommend SDL3 to first-time developers.
 
 **Questions 2-6 — Decision matrix inputs** (only if no prior engine experience):
 
@@ -46,11 +48,11 @@ If no engine is specified, run an interactive engine selection process:
 - Prompt: "What platforms are you targeting for this game?"
 - Options: `PC (Steam / Epic)` / `Mobile (iOS / Android)` / `Console` / `Web / Browser` / `Multiple platforms`
 - Platform rules that feed directly into the recommendation:
-  - Mobile → Unity strongly preferred; Unreal is a poor fit; Godot is viable for simple mobile
-  - Console → Unity or Unreal; Godot console support requires third-party publishers or significant extra work
-  - Web → Godot exports cleanly to web; Unity WebGL is functional; Unreal has poor web support
-  - PC only → all engines viable; other factors decide
-  - Multiple → Unity is the most portable across PC/mobile/console
+  - Mobile → Unity strongly preferred; Unreal is a poor fit; Godot is viable for simple mobile; SDL3 ships on mobile but expects you to own the UI/lifecycle plumbing
+  - Console → Unity or Unreal; Godot console support requires third-party publishers or significant extra work; SDL3 console ports exist but require case-by-case platform SDK work and are not an indie-friendly default
+  - Web → Godot exports cleanly to web; Unity WebGL is functional; Unreal has poor web support; SDL3 compiles cleanly to Emscripten (wasm) — strong option for custom-engine web games
+  - PC only → all four viable; other factors decide
+  - Multiple → Unity is the most portable across PC/mobile/console without custom work; SDL3 is also highly portable but requires you to write the cross-platform glue
 
 1. **What kind of game?** (2D, 3D, or both?)
 2. **Primary input method?** (keyboard/mouse, gamepad, touch, or mixed?)
@@ -82,17 +84,27 @@ Do NOT use a simple scoring matrix that eliminates engines. Instead, reason thro
 - Licensing reality: 5% royalty only applies AFTER $1M gross revenue per title. For a first game or any game that doesn't reach $1M, it costs nothing. This threshold is high enough that most indie developers will never pay it.
 - Best fit: AAA-quality 3D; large open-world games; photorealistic visuals; developers with C++ experience or willing to use Blueprint; games targeting high-end PC/console where visual fidelity is a core selling point
 
+**SDL3 (C++ framework)**
+- Genuine strengths: Full control over the engine — you decide the architecture; tiny dependency footprint; cross-platform (PC, macOS, Linux, Android, iOS, Emscripten/web); mature and battle-tested (SDL is the foundation under many commercial games); MIT-licensed zero royalties; modern SDL_gpu API targets Vulkan/D3D12/Metal from one shader source (via SDL_shadercross); excellent for learning how engines actually work
+- Real limitations: Not an engine — you must bring your own scene graph, UI framework (Dear ImGui for dev UI, RmlUi for shipped UI, or hand-rolled), physics (Box2D / Jolt), entity system (EnTT / custom), asset pipeline, and editor (or no editor); very high code volume vs Godot/Unity/Unreal; productivity depends heavily on C++ fluency; console ports are case-by-case platform SDK work; no visual editor means slower iteration on content-heavy games; AI agents (including this template's specialists) have less training data on SDL3 than on Godot/Unity/Unreal — the engine-reference docs are critical
+- Licensing reality: Truly free forever. zlib/MIT license with no revenue thresholds, no royalties. Industry-standard and used by major commercial engines and indie games.
+- Best fit: Developers with solid C++ experience who want full engine control; projects that need an exotic architecture not well-served by existing engines (deterministic rollback netcode, custom rendering pipeline, unusual input/simulation coupling); small-scope games where the engine's overhead outweighs its tooling value; learning projects for people who want to understand engines from first principles; teams deliberately minimizing dependencies
+
+> **Guardrail**: SDL3 is a serious "do it yourself" path. Recommend it ONLY when the user has explicit C++ comfort AND either wants the control or has a concept that doesn't fit a full engine well. Do NOT recommend SDL3 to first-time developers, to solo developers on tight timelines, or to teams that would benefit from a visual editor.
+
 **Genre-specific guidance** (factor this into the recommendation):
-- 2D any style → Godot strongly preferred
-- 3D stylized / atmospheric / contained world → Godot viable, Unity solid alternative
-- 3D open world (large, seamless) → Unity or Unreal; Godot is not production-proven for this
-- 3D photorealistic / AAA-quality → Unreal
+- 2D any style → Godot strongly preferred; SDL3 viable for experienced C++ devs who want a tiny stack
+- 3D stylized / atmospheric / contained world → Godot viable, Unity solid alternative; SDL3 only if the team wants to write a custom renderer
+- 3D open world (large, seamless) → Unity or Unreal; Godot is not production-proven for this; SDL3 is a multi-year project at this scope
+- 3D photorealistic / AAA-quality → Unreal; do NOT recommend SDL3 here
 - Mobile-first → Unity strongly preferred
-- Console-first → Unity or Unreal; Godot console support requires extra work
+- Console-first → Unity or Unreal; Godot console support requires extra work; SDL3 console is case-by-case platform SDK work
 - Horror / narrative / walking sim → any engine; match to art style and team experience
 - Action RPG / Soulslike → Unity or Unreal for 3D; community support and assets matter here
-- Platformer 2D → Godot
-- Strategy / top-down / RTS → Godot or Unity depending on 2D vs 3D
+- Platformer 2D → Godot; SDL3 viable for experienced C++ devs
+- Strategy / top-down / RTS → Godot or Unity depending on 2D vs 3D; SDL3 is a serious fit when determinism / rollback netcode / custom simulation matters (e.g. lockstep RTS)
+- Roguelikes / bullet-hells / deterministic simulations → SDL3 is a strong fit when the developer wants deterministic timing, rollback netcode, or a custom ECS; Godot / Unity also work
+- Emulator / interpreter / unusual core loop → SDL3 (the full-engine abstractions actively get in the way)
 
 **Recommendation format:**
 1. Show a comparison table with the user's specific factors as rows
@@ -167,6 +179,16 @@ Update the Technology Stack section, replacing the `[CHOOSE]` placeholders with 
 - **Asset Pipeline**: Unreal Content Pipeline
 ```
 
+**For SDL3:**
+```markdown
+- **Engine**: SDL3 [version] (C++ framework — not a full engine)
+- **Language**: C++20 (primary)
+- **Build System**: CMake + Ninja; SDL3 via FetchContent or vcpkg; SDL_shadercross for HLSL → SPIR-V/DXIL/MSL
+- **Asset Pipeline**: Hand-rolled (loose files + optional PhysicsFS pack) — no built-in editor
+```
+
+> **Guardrail (SDL3)**: Set an explicit C++ standard in CMake (`target_compile_features(... PUBLIC cxx_std_20)`). Do not use `CMAKE_CXX_STANDARD` at global scope — it pollutes downstream targets.
+
 ---
 
 ## 5. Populate Technical Preferences
@@ -195,6 +217,15 @@ engine-appropriate defaults. Read the existing template first, then fill in:
 - Functions: PascalCase (e.g., `TakeDamage()`)
 - Booleans: `b` prefix (e.g., `bIsAlive`)
 - Files: Match class without prefix (e.g., `PlayerController.h`)
+
+**For SDL3 (C++):**
+- Classes / structs / enums: `PascalCase` (e.g., `AudioMixer`, `enum class DamageType`)
+- Functions / methods: `PascalCase` (e.g., `TakeDamage()`, `Initialize()`)
+- Variables / parameters: `snake_case` (e.g., `current_health`, `move_speed`)
+- Member variables: `snake_case_` with trailing underscore (e.g., `SDL_Window *window_`)
+- Constants: `kPascalCase` (e.g., `constexpr int kMaxEntities = 4096`)
+- Namespaces: `snake_case` (e.g., `namespace game::audio`)
+- Files: `snake_case.hpp` / `snake_case.cpp` matching the primary class name
 
 ### Input & Platform Section
 
@@ -291,11 +322,16 @@ Also populate the `## Engine Specialists` section in `technical-preferences.md` 
 | General architecture review | unreal-specialist |
 ```
 
+**For SDL3** — see **Appendix B** for the full SDL3 routing table and variants.
+
 ### Collaborative Step
 Present the filled-in preferences to the user. For Godot, include the chosen language and note where the full naming conventions and routing tables live:
 > "Here are the default technical preferences for [engine] ([language if Godot]). The naming conventions and specialist routing are in Appendix A of this skill — I'll apply the [GDScript/C#/Both] variant. Want to customize any of these, or shall I save the defaults?"
 
-For all other engines, present the defaults directly without referencing the appendix.
+For SDL3, reference Appendix B:
+> "Here are the default technical preferences for SDL3/C++. The full naming conventions and specialist routing are in Appendix B of this skill. Want to customize any of these, or shall I save the defaults?"
+
+For Unity and Unreal, present the defaults directly without referencing the appendix.
 
 Wait for approval before writing the file.
 
@@ -310,6 +346,7 @@ Check whether the engine version is likely beyond the LLM's training data.
 - Godot: training data likely covers up to ~4.3
 - Unity: training data likely covers up to ~2023.x / early 6000.x
 - Unreal: training data likely covers up to ~5.3 / early 5.4
+- SDL3: GA shipped January 2025 — SDL3 1.x is mostly POST-CUTOFF. Model knowledge is primarily SDL2 with partial SDL3 coverage. **Default to HIGH RISK for any SDL3 project** regardless of patch version — the SDL2→SDL3 rename surface is the dominant risk, not version drift within SDL3.
 
 Compare the user's chosen version against these baselines:
 
@@ -713,3 +750,111 @@ Use GDScript conventions for `.gd` files and C# conventions for `.cs` files. Mix
 | Native extension / plugin files (.gdextension, C++) | godot-gdextension-specialist |
 | General architecture review | godot-specialist |
 ```
+
+---
+
+## Appendix B — SDL3 Configuration
+
+SDL3-specific variants for CLAUDE.md, naming conventions, and specialist routing.
+Referenced from Sections 4 and 5 — only relevant when SDL3 is the chosen engine.
+
+SDL3 is a **C/C++ framework**, not a full engine. There is only one primary
+language (C++), so there are no language sub-variants the way Godot has
+GDScript / C# / Both.
+
+---
+
+### B1. CLAUDE.md Technology Stack Template
+
+```markdown
+- **Engine**: SDL3 [version] (C++ framework — not a full engine)
+- **Language**: C++20 (primary)
+- **Build System**: CMake + Ninja; SDL3 via FetchContent or vcpkg; SDL_shadercross for HLSL → SPIR-V/DXIL/MSL
+- **Asset Pipeline**: Hand-rolled (loose files + optional PhysicsFS pack) — no built-in editor
+```
+
+> **Guardrail**: Set an explicit C++ standard per-target (`target_compile_features(... PUBLIC cxx_std_20)`). Do not rely on `CMAKE_CXX_STANDARD` at global scope. Do not mix SDL2 and SDL3 in the same build — they are separate libraries with conflicting symbol sets.
+
+---
+
+### B2. Naming Conventions
+
+These are the default SDL3/C++ project conventions. The user may override them
+— the actual naming lives in `.claude/docs/technical-preferences.md`.
+
+- **Types** (classes, structs, enums, type aliases): `PascalCase` — `class AudioMixer`, `struct Vertex`, `enum class DamageType`
+- **Functions / methods**: `PascalCase` — `void Jump()`, `bool Initialize()`
+- **Variables / parameters**: `snake_case` — `int current_health`, `float move_speed`
+- **Member variables**: `snake_case_` with trailing underscore — `SDL_Window *window_`
+- **Constants**: `kPascalCase` — `constexpr int kMaxEntities = 4096`
+- **Namespaces**: `snake_case` — `namespace game::audio`
+- **Files**: `snake_case.hpp` / `snake_case.cpp` matching the primary class in `snake_case`
+
+**Shader files** (if using SDL_gpu): `[category]_[purpose].[stage].hlsl`
+- `env_water.vertex.hlsl`, `env_water.fragment.hlsl`
+- `ui_textured.vertex.hlsl`, `ui_textured.fragment.hlsl`
+- `post_bloom.fragment.hlsl`
+
+---
+
+### B3. Engine Specialists Routing
+
+```markdown
+## Engine Specialists
+- **Primary**: sdl3-specialist
+- **Language/Code Specialist**: sdl3-cpp-specialist (all .hpp / .cpp files — C++20 idioms, RAII, ownership, STL)
+- **Shader/GPU Specialist**: sdl3-gpu-specialist (.hlsl files, SDL_gpu pipelines, SDL_shadercross build integration)
+- **Audio Specialist**: sdl3-audio-specialist (SDL_AudioStream, middleware integration, audio threading)
+- **Build Specialist**: sdl3-build-specialist (CMake, FetchContent / vcpkg, shader build pipeline, CI, packaging)
+- **UI Specialist**: sdl3-specialist (no dedicated UI specialist — primary decides Dear ImGui vs RmlUi vs hand-rolled, see `docs/engine-reference/sdl3/modules/ui.md`)
+- **Routing Notes**: Invoke primary for render-path decisions, satellite-library choices, and framework-level architecture. Invoke C++ specialist for code quality review, header hygiene, and ownership design. Invoke GPU specialist for all shader and SDL_gpu work. Invoke audio specialist for any audio-thread-facing code. Invoke build specialist for CMake, dependency vendoring, and CI changes.
+
+### File Extension Routing
+
+| File Extension / Type | Specialist to Spawn |
+|-----------------------|---------------------|
+| Game code (.hpp, .cpp, .h, .c files) | sdl3-cpp-specialist |
+| Shader files (.hlsl, .vert, .frag, .comp) | sdl3-gpu-specialist |
+| Built shader artifacts (.spv, .dxil, .msl) | sdl3-gpu-specialist |
+| UI code (Dear ImGui / RmlUi / hand-rolled) | sdl3-cpp-specialist (with sdl3-specialist consulted for library choice) |
+| Audio system code | sdl3-audio-specialist |
+| `CMakeLists.txt`, `cmake/*.cmake`, `vcpkg.json`, `CMakePresets.json` | sdl3-build-specialist |
+| `.github/workflows/*.yml` | sdl3-build-specialist |
+| General architecture review | sdl3-specialist |
+```
+
+---
+
+### B4. Version Risk
+
+SDL3 is always **HIGH RISK** regardless of the patch version pinned, because:
+- SDL 3.0 GA (January 2025) is mostly post-LLM-cutoff
+- SDL2 code dominates training data and will leak into SDL3 suggestions if
+  agents are not careful
+- `SDL_gpu` is entirely new — there is no SDL2 equivalent; training data
+  does not cover it
+- Audio API is a ground-up rewrite — SDL2 callback/queue code does not work
+
+Always create the full reference doc set:
+
+```
+docs/engine-reference/sdl3/
+├── VERSION.md
+├── breaking-changes.md
+├── deprecated-apis.md
+├── current-best-practices.md
+├── PLUGINS.md                    # satellite libs + common third-party
+└── modules/
+    ├── rendering.md              # SDL_Renderer (2D)
+    ├── gpu.md                    # SDL_gpu (3D / custom shaders)
+    ├── audio.md                  # SDL_AudioStream
+    ├── input.md                  # keyboard / mouse / gamepad / touch / pen
+    ├── events.md                 # main loop / callbacks API
+    ├── networking.md             # SDL_net + recommendations
+    ├── assets.md                 # SDL_IOStream, satellite lib loaders
+    └── ui.md                     # no built-in UI — guidance on libraries
+```
+
+The template ships with these files pre-written for SDL 3.2. Refresh with
+`/setup-engine refresh` when upgrading.
+

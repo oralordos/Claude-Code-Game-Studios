@@ -47,6 +47,12 @@
       godot-gdscript-specialist    -- GDScript: static typing, patterns, signals, performance
       godot-shader-specialist      -- Shaders: Godot shading language, visual shaders, VFX
       godot-gdextension-specialist -- Native: C++/Rust bindings, GDExtension, build systems
+
+    sdl3-specialist    -- SDL3/C++ lead: framework architecture, render path choice, lifecycle
+      sdl3-cpp-specialist          -- C++: C++20 patterns, RAII, ownership, STL, headers
+      sdl3-gpu-specialist          -- SDL_gpu: pipelines, HLSL + shadercross, command buffers
+      sdl3-audio-specialist        -- Audio: SDL_AudioStream, threading, mixing, middleware
+      sdl3-build-specialist        -- Build: CMake, deps, shader pipeline, CI, packaging
 ```
 
 ### Legend

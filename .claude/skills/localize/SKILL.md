@@ -279,7 +279,7 @@ just translating text. This mode validates the implementation.
 Read `.claude/docs/technical-preferences.md` to determine the engine. Then check:
 
 **Layout mirroring**
-- Is RTL layout enabled in the engine? (Godot: `Control.layout_direction`, Unity: `RTL Support` package, Unreal: text direction flags)
+- Is RTL layout enabled in the engine? (Godot: `Control.layout_direction`, Unity: `RTL Support` package, Unreal: text direction flags, SDL3: no built-in RTL — the UI library carries the feature; RmlUi supports RTL, Dear ImGui does not without patches, hand-rolled UI must implement mirroring explicitly)
 - Are all UI containers set to auto-mirror, or are positions hardcoded?
 - Do progress bars, health bars, and directional indicators mirror correctly?
 
